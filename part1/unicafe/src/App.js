@@ -22,7 +22,9 @@ const App = () => {
   const [good, setGood] = useState(0)
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
-
+  const all = () => good+neutral+bad
+  const average = () => ((good - bad)/all())
+  console.log(all)
   const goodsetbutton = (good) => {
     setGood(good)
   }
@@ -42,6 +44,8 @@ const App = () => {
       <Content text="good" value = {good}/>
       <Content text="neutral" value = {neutral}/>
       <Content text="bad" value = {bad}/>
+      <Content text="all" value = {all()}/>
+      <Content text="average" value = {average()}/>
 
     </div>
   )
