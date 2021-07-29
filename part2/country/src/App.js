@@ -3,14 +3,37 @@ import axios from 'axios'
 
 // you can implement the show button using a true-false state, then show the show button
 
+const WeatherDetails = ({weatherdata}) => {
+  return (
+    <div>
+      <h2>Weather in {weatherdata.location.name}</h2>
+      <p><b>Temperature:</b> {weatherdata.current.temperature} Celsius</p>
+      <img src = {weatherdata.current.weather_icons} alt = 'nah'></img>
+      <p><b>Wind:</b> {weatherdata.current.wind_speed} direction: {weatherdata.current.wind_dir}</p>
+    </div>
+  )
+}
+
 const SingleDisplay = ({country, bool}) => {
   const [detailData, setDetailData] = useState(bool)
   const [currentCountry, setCurrentCountry] = useState(country)
+  const [weather, setWeather] = useState(null)
+  const api_key = process.env.REACT_APP_API_KEY
+  const query = `http://api.weatherstack.com/current?access_key=${api_key}&query=${currentCountry.capital}`
 
   const handleClick = c => {
     setCurrentCountry(c);
     setDetailData(false);
   };
+
+  useEffect(() => {
+    axios
+    .get(query)
+    .then(response => {
+      setWeather(response.data)
+      console.log(response.data)
+    })
+  }, [])
 
   return detailData ? (
     <div>
@@ -37,6 +60,7 @@ const SingleDisplay = ({country, bool}) => {
       height="120"
       width="120"
     />
+    <WeatherDetails weatherdata = {weather} />
     </div>
   )
 }
