@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import numberService from "./services/contacts";
 import Filter from "./components/Filter";
 import NewForm from "./components/NewForm";
 import Numbers from "./components/Numbers";
@@ -12,9 +12,9 @@ const App = () => {
   const [results, setResults] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((response) => {
-      setPersons(response.data);
+    numberService.getAll().then((response) => {
       setResults(response.data);
+      setPersons(response.data);
     });
   }, []);
   console.log("render", persons, "data");
@@ -41,14 +41,12 @@ const App = () => {
     if (persons.map((person) => person.name).includes(nameObject.name)) {
       window.alert(`${nameObject.name} is already added to phonebook`);
     } else {
-      axios
-        .post("http://localhost:3001/persons", nameObject)
-        .then((response) => {
-          setPersons(persons.concat(response.data));
-          setResults(results.concat(response.data));
-          setNewName("");
-          setNewNumber(""); //reset button states
-        });
+      numberService.create(nameObject).then((response) => {
+        setPersons(persons.concat(response.data));
+        setResults(results.concat(response.data));
+        setNewName("");
+        setNewNumber(""); //reset button states
+      });
     }
   };
 
@@ -59,6 +57,13 @@ const App = () => {
     );
     setResults(perstoshow);
     setNewFilter("");
+  };
+
+  const deleteimp = (id) => {
+    if (!window.confirm("Are you sure?")) return;
+    numberService.remove(id).then(() => {
+      setResults(persons.filter((person) => person.id !== id));
+    });
   };
 
   return (
@@ -78,7 +83,7 @@ const App = () => {
         clickhandle={addPerson}
       />
       <h2>Numbers</h2>
-      <Numbers listofthings={results} />
+      <Numbers listofthings={results} deleteimp={deleteimp} />
     </div>
   );
 };

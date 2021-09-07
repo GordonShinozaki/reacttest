@@ -9,5 +9,8 @@ const create = (nameObject) => {
   return axios.post(baseUrl, nameObject);
 };
 
+const remove = (id) => {
+  return axios.delete(`${baseUrl}/${id}`);
+};
 // eslint-disable-next-line import/no-anonymous-default-export
-export default { getAll, create };
+export default { getAll, create, remove };
