@@ -39,7 +39,31 @@ const App = () => {
       number: newNumber,
     };
     if (persons.map((person) => person.name).includes(nameObject.name)) {
-      window.alert(`${nameObject.name} is already added to phonebook`);
+      const record = persons
+        .map((person) => person)
+        .find((person) => person.name === nameObject.name); //you need a way to fetch the person's id. the map/find function will do the trick
+      if (
+        !window.confirm(
+          `${nameObject.name} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        return;
+      } else {
+        numberService.update(record.id, nameObject).then((response) => {
+          setPersons(
+            persons.map((person) =>
+              person.name !== newName ? person : response.data
+            )
+          );
+          setResults(
+            persons.map((person) =>
+              person.name !== newName ? person : response.data
+            )
+          );
+        });
+        setNewName("");
+        setNewNumber(""); //reset button states
+      }
     } else {
       numberService.create(nameObject).then((response) => {
         setPersons(persons.concat(response.data));
