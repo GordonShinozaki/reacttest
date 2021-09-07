@@ -4,6 +4,7 @@ import Filter from "./components/Filter";
 import NewForm from "./components/NewForm";
 import Numbers from "./components/Numbers";
 import Success from "./components/Success";
+import Failure from "./components/Failure";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -52,22 +53,32 @@ const App = () => {
       ) {
         return;
       } else {
-        numberService.update(record.id, nameObject).then((response) => {
-          setPersons(
-            persons.map((person) =>
-              person.name !== newName ? person : response.data
-            )
-          );
-          setResults(
-            persons.map((person) =>
-              person.name !== newName ? person : response.data
-            )
-          );
-          setSuccess(`You have updated ${record.name}'s number`);
-          setTimeout(() => {
-            setSuccess(null);
-          }, 5000);
-        });
+        numberService
+          .update(record.id, nameObject)
+          .then((response) => {
+            setPersons(
+              persons.map((person) =>
+                person.name !== newName ? person : response.data
+              )
+            );
+            setResults(
+              persons.map((person) =>
+                person.name !== newName ? person : response.data
+              )
+            );
+            setSuccess(`You have updated ${record.name}'s number`);
+            setTimeout(() => {
+              setSuccess(null);
+            }, 5000);
+          })
+          .catch((error) => {
+            setFailure(
+              `${record.name}'s number has already been deleted from the Server`
+            );
+            setTimeout(() => {
+              setFailure(null);
+            }, 5000);
+          });
         setNewName("");
         setNewNumber(""); //reset button states
       }
@@ -96,10 +107,10 @@ const App = () => {
 
   const deleteimp = (id) => {
     if (!window.confirm("Are you sure?")) return;
+    const record = persons
+      .map((person) => person)
+      .find((person) => person.id === id); //you need a way to fetch the person's id. the map/find function will do the trick
     numberService.remove(id).then(() => {
-      const record = persons
-        .map((person) => person)
-        .find((person) => person.id === id); //you need a way to fetch the person's id. the map/find function will do the trick
       setResults(persons.filter((person) => person.id !== id));
       setSuccess(`You have deleted ${record.name}'s number`);
       setTimeout(() => {
@@ -111,6 +122,7 @@ const App = () => {
   return (
     <div>
       <Success message={success} />
+      <Failure message={failure} />
       <h2>Phonebook</h2>
       <Filter
         newfilter={newfilter}
