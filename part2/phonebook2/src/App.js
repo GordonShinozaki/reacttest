@@ -3,6 +3,7 @@ import numberService from "./services/contacts";
 import Filter from "./components/Filter";
 import NewForm from "./components/NewForm";
 import Numbers from "./components/Numbers";
+import Success from "./components/Success";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +11,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [newfilter, setNewFilter] = useState("");
   const [results, setResults] = useState([]);
+  const [success, setSuccess] = useState("");
+  const [failure, setFailure] = useState("");
 
   useEffect(() => {
     numberService.getAll().then((response) => {
@@ -60,6 +63,10 @@ const App = () => {
               person.name !== newName ? person : response.data
             )
           );
+          setSuccess(`You have updated ${record.name}'s number`);
+          setTimeout(() => {
+            setSuccess(null);
+          }, 5000);
         });
         setNewName("");
         setNewNumber(""); //reset button states
@@ -70,6 +77,10 @@ const App = () => {
         setResults(results.concat(response.data));
         setNewName("");
         setNewNumber(""); //reset button states
+        setSuccess(`You have added ${nameObject.name}'s number`);
+        setTimeout(() => {
+          setSuccess(null);
+        }, 5000);
       });
     }
   };
@@ -86,12 +97,20 @@ const App = () => {
   const deleteimp = (id) => {
     if (!window.confirm("Are you sure?")) return;
     numberService.remove(id).then(() => {
+      const record = persons
+        .map((person) => person)
+        .find((person) => person.id === id); //you need a way to fetch the person's id. the map/find function will do the trick
       setResults(persons.filter((person) => person.id !== id));
+      setSuccess(`You have deleted ${record.name}'s number`);
+      setTimeout(() => {
+        setSuccess(null);
+      }, 5000);
     });
   };
 
   return (
     <div>
+      <Success message={success} />
       <h2>Phonebook</h2>
       <Filter
         newfilter={newfilter}
