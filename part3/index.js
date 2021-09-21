@@ -30,6 +30,13 @@ app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
 });
 
+app.get("/info", (request, response) => {
+  const length = phonebook.length;
+  const date = Date();
+
+  response.send(`<p>Phonebook has info for ${length} people</p><p> ${date}`);
+});
+
 app.get("/api/phonebook", (request, response) => {
   response.json(phonebook);
 });
@@ -54,9 +61,20 @@ const generateId = () => {
 app.post("/api/phonebook", (request, response) => {
   const body = request.body;
 
-  if (!body.name || !body.number) {
+  if (!body.name) {
     return response.status(400).json({
-      error: "content missing",
+      error: "name is missing",
+    });
+  }
+  if (!body.number) {
+    return response.status(400).json({
+      error: "number is missing",
+    });
+  }
+
+  if (phonebook.find((person) => person.name === body.name)) {
+    return response.status(400).json({
+      error: " name must be unique",
     });
   }
 
