@@ -1,7 +1,16 @@
 const express = require("express");
+const bodyParser = require("body-parser");
+const morgan = require("morgan");
 const app = express();
 
-app.use(express.json());
+app.use(bodyParser.json());
+
+morgan.token("body", (request) => JSON.stringify(request.body));
+app.use(
+  morgan(
+    ":method :url :body - status :status length :res[content-length] - :response-time ms"
+  )
+);
 
 let phonebook = [
   {
@@ -58,35 +67,33 @@ const generateId = () => {
   return maxId + 1;
 };
 
-app.post("/api/phonebook", (request, response) => {
-  const body = request.body;
-
+const checkGetPostBody = (req, res) => {
+  const body = req.body;
   if (!body.name) {
-    return response.status(400).json({
-      error: "name is missing",
-    });
+    return res.status(400).json({ error: "the name field is missing" });
   }
   if (!body.number) {
-    return response.status(400).json({
-      error: "number is missing",
-    });
+    return res.status(400).json({ error: "the number field is missing" });
   }
-
   if (phonebook.find((person) => person.name === body.name)) {
     return response.status(400).json({
       error: " name must be unique",
     });
   }
+  return body;
+};
+
+app.post("/api/phonebook", (request, response) => {
+  const body = checkGetPostBody(request, response);
 
   const person = {
     name: body.name,
     number: body.number,
     id: generateId(),
-  };
+  }; //this is returned as a Javascript object
 
   phonebook = phonebook.concat(person);
-
-  response.json(person);
+  response.json(person); //this actually needs to be parsed into a Json string for morgan
 });
 
 app.delete("/api/phonebook/:id", (request, response) => {
