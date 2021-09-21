@@ -1,0 +1,7 @@
+POST http://localhost:3001/api/phonebook
+Content-Type: application/json
+
+{
+    "name": "bruh",
+    "number": "08-7780-2192"
+}
