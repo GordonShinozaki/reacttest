@@ -1,8 +1,10 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
+const Person = require("./models/person");
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -14,29 +16,6 @@ app.use(
     ":method :url :body - status :status length :res[content-length] - :response-time ms"
   )
 );
-
-let phonebook = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
 
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
@@ -50,17 +29,15 @@ app.get("/info", (request, response) => {
 });
 
 app.get("/api/phonebook", (request, response) => {
-  response.json(phonebook);
+  Person.find({}).then((persons) => {
+    response.json(persons);
+  });
 });
 
 app.get("/api/phonebook/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const person = phonebook.find((person) => person.id === id);
-  if (person) {
+  Person.findById(request.params.id).then((person) => {
     response.json(person);
-  } else {
-    response.status(404).end();
-  }
+  });
 });
 
 const generateId = () => {
@@ -89,14 +66,15 @@ const checkGetPostBody = (req, res) => {
 app.post("/api/phonebook", (request, response) => {
   const body = checkGetPostBody(request, response);
 
-  const person = {
+  const person = new Person({
     name: body.name,
     number: body.number,
     id: generateId(),
-  }; //this is returned as a Javascript object
+  }); //this is returned as a Javascript object
 
-  phonebook = phonebook.concat(person);
-  response.json(person); //this actually needs to be parsed into a Json string for morgan
+  person.save().then((savedperson) => {
+    response.json(savedperson);
+  });
 });
 
 app.delete("/api/phonebook/:id", (request, response) => {
@@ -105,7 +83,7 @@ app.delete("/api/phonebook/:id", (request, response) => {
   response.status(204).end();
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
