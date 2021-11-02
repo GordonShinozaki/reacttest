@@ -1,7 +1,7 @@
-post http://localhost:3001/api/phonebook
+post http://localhost:3001/api/phonebook/
 Content-Type: application/json
 
 {
-    "name": "Mohammed Salah",
-    "number": "23-9950"
+    "name": "Dommi", 
+    "number": "94678-47"
 }
